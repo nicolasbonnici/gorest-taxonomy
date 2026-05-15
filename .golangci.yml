@@ -1,0 +1,51 @@
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused
+  disable:
+    - gocyclo
+    - misspell
+
+linters-settings:
+  errcheck:
+    check-blank: false
+    check-type-assertions: false
+    exclude-functions:
+      - (io.Closer).Close
+      - (io.ReadCloser).Close
+      - (*os.File).Close
+      - (*database/sql.Rows).Close
+      - (*database/sql.Tx).Rollback
+      - (database/sql.DB).Close
+      - encoding/json.Unmarshal
+      - (github.com/nicolasbonnici/gorest/database.Database).Close
+      - (github.com/nicolasbonnici/gorest/database.Rows).Close
+      - (github.com/nicolasbonnici/gorest/database.Tx).Rollback
+      - (*github.com/nicolasbonnici/gorest/migrations.MigrationLock).Release
+      - (*github.com/nicolasbonnici/gorest/migrations.MigrationTracker).RecordFailedMigration
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  exclude-dirs:
+    - vendor
+    - generated
+  exclude-files:
+    - ".*_test\\.go$"
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - errcheck
+        - gosec
+    - path: test/
+      linters:
+        - errcheck

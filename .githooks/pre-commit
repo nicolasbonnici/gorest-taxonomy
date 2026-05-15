@@ -1,0 +1,42 @@
+#!/bin/bash
+
+set -e
+
+echo "🔍 Running pre-commit checks..."
+echo ""
+
+echo "🔬 Running quality audit..."
+if ! make audit; then
+    echo ""
+    echo "❌ Quality audit failed. Please fix the issues before committing."
+    echo "   Run 'make audit' to see detailed quality check results."
+    exit 1
+fi
+
+echo ""
+echo "✅ Quality audit passed"
+echo ""
+
+echo "📝 Running linter..."
+if ! make lint; then
+    echo ""
+    echo "❌ Linting failed. Please fix the issues before committing."
+    echo "   You can run 'make lint-fix' to auto-fix some issues."
+    exit 1
+fi
+
+echo ""
+echo "✅ Linting passed"
+echo ""
+
+echo "🧪 Running tests..."
+if ! make test; then
+    echo ""
+    echo "❌ Tests failed. Please fix the failing tests before committing."
+    exit 1
+fi
+
+echo ""
+echo "✅ All tests passed"
+echo ""
+echo "✨ Pre-commit checks completed successfully!"

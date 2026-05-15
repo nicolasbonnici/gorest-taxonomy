@@ -1,0 +1,14 @@
+(*database/sql.Rows).Close
+(*os.File).Close
+(database/sql.DB).Close
+(io.ReadCloser).Close
+(io.Closer).Close
+(github.com/jackc/pgx/v5.Rows).Close
+(github.com/nicolasbonnici/gorest/database.Database).Close
+(github.com/nicolasbonnici/gorest/database.Rows).Close
+(*database/sql.Tx).Rollback
+(github.com/jackc/pgx/v5.Tx).Rollback
+(github.com/nicolasbonnici/gorest/database.Tx).Rollback
+(*github.com/nicolasbonnici/gorest/migrations.MigrationLock).Release
+encoding/json.Unmarshal
+(*github.com/nicolasbonnici/gorest/migrations.MigrationTracker).RecordFailedMigration
