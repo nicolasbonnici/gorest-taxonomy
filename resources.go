@@ -1,7 +1,7 @@
 package taxonomy
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 	"github.com/google/uuid"
 	"github.com/nicolasbonnici/gorest/crud"
 	"github.com/nicolasbonnici/gorest/database"
@@ -93,27 +93,27 @@ func RegisterTagRoutes(router fiber.Router, db database.Database, config *Config
 	router.Delete("/tags/:id/resources/:resource/:resource_id", h.DetachResource)
 }
 
-func (h *categoryHandler) Create(c *fiber.Ctx) error {
+func (h *categoryHandler) Create(c fiber.Ctx) error {
 	return h.processor.Create(c)
 }
 
-func (h *categoryHandler) GetByID(c *fiber.Ctx) error {
+func (h *categoryHandler) GetByID(c fiber.Ctx) error {
 	return h.processor.GetByID(c)
 }
 
-func (h *categoryHandler) GetAll(c *fiber.Ctx) error {
+func (h *categoryHandler) GetAll(c fiber.Ctx) error {
 	return h.processor.GetAll(c)
 }
 
-func (h *categoryHandler) Update(c *fiber.Ctx) error {
+func (h *categoryHandler) Update(c fiber.Ctx) error {
 	return h.processor.Update(c)
 }
 
-func (h *categoryHandler) Delete(c *fiber.Ctx) error {
+func (h *categoryHandler) Delete(c fiber.Ctx) error {
 	return h.processor.Delete(c)
 }
 
-func (h *categoryHandler) GetTree(c *fiber.Ctx) error {
+func (h *categoryHandler) GetTree(c fiber.Ctx) error {
 	categories, err := h.service.GetAllCategories(c.Context())
 	if err != nil {
 		return fiber.NewError(500, "failed to fetch categories")
@@ -121,14 +121,14 @@ func (h *categoryHandler) GetTree(c *fiber.Ctx) error {
 	return c.JSON(h.service.BuildCategoryTree(categories))
 }
 
-func (h *categoryHandler) AttachResource(c *fiber.Ctx) error {
+func (h *categoryHandler) AttachResource(c fiber.Ctx) error {
 	categoryID, err := uuid.Parse(c.Params("id"))
 	if err != nil {
 		return fiber.NewError(400, "invalid category id")
 	}
 
 	var dto ResourceAttachDTO
-	if err := c.BodyParser(&dto); err != nil {
+	if err := c.Bind().Body(&dto); err != nil {
 		return fiber.NewError(400, "invalid request body")
 	}
 
@@ -148,7 +148,7 @@ func (h *categoryHandler) AttachResource(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "resource attached"})
 }
 
-func (h *categoryHandler) DetachResource(c *fiber.Ctx) error {
+func (h *categoryHandler) DetachResource(c fiber.Ctx) error {
 	categoryID, err := uuid.Parse(c.Params("id"))
 	if err != nil {
 		return fiber.NewError(400, "invalid category id")
@@ -171,34 +171,34 @@ func (h *categoryHandler) DetachResource(c *fiber.Ctx) error {
 	return c.SendStatus(fiber.StatusNoContent)
 }
 
-func (h *tagHandler) Create(c *fiber.Ctx) error {
+func (h *tagHandler) Create(c fiber.Ctx) error {
 	return h.processor.Create(c)
 }
 
-func (h *tagHandler) GetByID(c *fiber.Ctx) error {
+func (h *tagHandler) GetByID(c fiber.Ctx) error {
 	return h.processor.GetByID(c)
 }
 
-func (h *tagHandler) GetAll(c *fiber.Ctx) error {
+func (h *tagHandler) GetAll(c fiber.Ctx) error {
 	return h.processor.GetAll(c)
 }
 
-func (h *tagHandler) Update(c *fiber.Ctx) error {
+func (h *tagHandler) Update(c fiber.Ctx) error {
 	return h.processor.Update(c)
 }
 
-func (h *tagHandler) Delete(c *fiber.Ctx) error {
+func (h *tagHandler) Delete(c fiber.Ctx) error {
 	return h.processor.Delete(c)
 }
 
-func (h *tagHandler) AttachResource(c *fiber.Ctx) error {
+func (h *tagHandler) AttachResource(c fiber.Ctx) error {
 	tagID, err := uuid.Parse(c.Params("id"))
 	if err != nil {
 		return fiber.NewError(400, "invalid tag id")
 	}
 
 	var dto ResourceAttachDTO
-	if err := c.BodyParser(&dto); err != nil {
+	if err := c.Bind().Body(&dto); err != nil {
 		return fiber.NewError(400, "invalid request body")
 	}
 
@@ -218,7 +218,7 @@ func (h *tagHandler) AttachResource(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message": "resource attached"})
 }
 
-func (h *tagHandler) DetachResource(c *fiber.Ctx) error {
+func (h *tagHandler) DetachResource(c fiber.Ctx) error {
 	tagID, err := uuid.Parse(c.Params("id"))
 	if err != nil {
 		return fiber.NewError(400, "invalid tag id")

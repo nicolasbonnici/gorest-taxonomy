@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 	"github.com/google/uuid"
 	auth "github.com/nicolasbonnici/gorest/auth"
 	"github.com/nicolasbonnici/gorest/crud"
@@ -29,7 +29,7 @@ func NewTaxonomyHooks(db database.Database, config *Config, service *TaxonomySer
 	return &TaxonomyHooks{db: db, config: config, service: service}
 }
 
-func (h *TaxonomyHooks) CategoryCreateHook(c *fiber.Ctx, dto CategoryCreateDTO, model *Category) error {
+func (h *TaxonomyHooks) CategoryCreateHook(c fiber.Ctx, dto CategoryCreateDTO, model *Category) error {
 	name := strings.TrimSpace(dto.Name)
 	if name == "" {
 		return fiber.NewError(400, "name is required")
@@ -61,7 +61,7 @@ func (h *TaxonomyHooks) CategoryCreateHook(c *fiber.Ctx, dto CategoryCreateDTO, 
 	return nil
 }
 
-func (h *TaxonomyHooks) CategoryUpdateHook(c *fiber.Ctx, dto CategoryUpdateDTO, model *Category) error {
+func (h *TaxonomyHooks) CategoryUpdateHook(c fiber.Ctx, dto CategoryUpdateDTO, model *Category) error {
 	name := strings.TrimSpace(dto.Name)
 	if name == "" {
 		return fiber.NewError(400, "name is required")
@@ -96,19 +96,19 @@ func (h *TaxonomyHooks) CategoryUpdateHook(c *fiber.Ctx, dto CategoryUpdateDTO, 
 	return nil
 }
 
-func (h *TaxonomyHooks) CategoryDeleteHook(_ *fiber.Ctx, _ any) error {
+func (h *TaxonomyHooks) CategoryDeleteHook(_ fiber.Ctx, _ any) error {
 	return nil
 }
 
-func (h *TaxonomyHooks) CategoryGetByIDHook(_ *fiber.Ctx, _ any) error {
+func (h *TaxonomyHooks) CategoryGetByIDHook(_ fiber.Ctx, _ any) error {
 	return nil
 }
 
-func (h *TaxonomyHooks) CategoryGetAllHook(_ *fiber.Ctx, _ *[]query.Condition, _ *[]crud.OrderByClause) error {
+func (h *TaxonomyHooks) CategoryGetAllHook(_ fiber.Ctx, _ *[]query.Condition, _ *[]crud.OrderByClause) error {
 	return nil
 }
 
-func (h *TaxonomyHooks) TagCreateHook(c *fiber.Ctx, dto TagCreateDTO, model *Tag) error {
+func (h *TaxonomyHooks) TagCreateHook(c fiber.Ctx, dto TagCreateDTO, model *Tag) error {
 	name := strings.TrimSpace(dto.Name)
 	if name == "" {
 		return fiber.NewError(400, "name is required")
@@ -125,7 +125,7 @@ func (h *TaxonomyHooks) TagCreateHook(c *fiber.Ctx, dto TagCreateDTO, model *Tag
 	return nil
 }
 
-func (h *TaxonomyHooks) TagUpdateHook(_ *fiber.Ctx, dto TagUpdateDTO, model *Tag) error {
+func (h *TaxonomyHooks) TagUpdateHook(_ fiber.Ctx, dto TagUpdateDTO, model *Tag) error {
 	name := strings.TrimSpace(dto.Name)
 	if name == "" {
 		return fiber.NewError(400, "name is required")
@@ -143,14 +143,14 @@ func (h *TaxonomyHooks) TagUpdateHook(_ *fiber.Ctx, dto TagUpdateDTO, model *Tag
 	return nil
 }
 
-func (h *TaxonomyHooks) TagDeleteHook(_ *fiber.Ctx, _ any) error {
+func (h *TaxonomyHooks) TagDeleteHook(_ fiber.Ctx, _ any) error {
 	return nil
 }
 
-func (h *TaxonomyHooks) TagGetByIDHook(_ *fiber.Ctx, _ any) error {
+func (h *TaxonomyHooks) TagGetByIDHook(_ fiber.Ctx, _ any) error {
 	return nil
 }
 
-func (h *TaxonomyHooks) TagGetAllHook(_ *fiber.Ctx, _ *[]query.Condition, _ *[]crud.OrderByClause) error {
+func (h *TaxonomyHooks) TagGetAllHook(_ fiber.Ctx, _ *[]query.Condition, _ *[]crud.OrderByClause) error {
 	return nil
 }

@@ -1,7 +1,7 @@
 package taxonomy
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v3"
 	"github.com/google/uuid"
 	"github.com/nicolasbonnici/gorest/database"
 )
@@ -17,7 +17,7 @@ func registerResourceLookupRoutes(router fiber.Router, config *Config, service *
 	catConverter := &CategoryConverter{}
 	tagConverter := &TagConverter{}
 
-	router.Get("/:resource/:resource_id/categories", func(c *fiber.Ctx) error {
+	router.Get("/:resource/:resource_id/categories", func(c fiber.Ctx) error {
 		resource := c.Params("resource")
 		if !config.IsAllowedType(resource) {
 			return fiber.NewError(400, "resource type is not allowed")
@@ -33,7 +33,7 @@ func registerResourceLookupRoutes(router fiber.Router, config *Config, service *
 		return c.JSON(catConverter.ModelsToResponseDTOs(categories))
 	})
 
-	router.Get("/:resource/:resource_id/tags", func(c *fiber.Ctx) error {
+	router.Get("/:resource/:resource_id/tags", func(c fiber.Ctx) error {
 		resource := c.Params("resource")
 		if !config.IsAllowedType(resource) {
 			return fiber.NewError(400, "resource type is not allowed")
