@@ -167,3 +167,49 @@ func (s *TaxonomyService) DetachTag(ctx context.Context, tagID uuid.UUID, resour
 	_, err := s.db.Exec(ctx, sql, tagID, resource, resourceID)
 	return err
 }
+
+func (s *TaxonomyService) GetResourceIDsByCategorySlug(ctx context.Context, resource, slug string) ([]uuid.UUID, error) {
+	d := s.db.Dialect()
+	sql := "SELECT cr.resource_id FROM category_resources cr " +
+		"INNER JOIN categories c ON c.id = cr.category_id " +
+		"WHERE cr.resource = " + d.Placeholder(1) + " AND c.slug = " + d.Placeholder(2)
+
+	rows, err := s.db.Query(ctx, sql, resource, slug)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var ids []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+	return ids, rows.Err()
+}
+
+func (s *TaxonomyService) GetResourceIDsByTagSlug(ctx context.Context, resource, slug string) ([]uuid.UUID, error) {
+	d := s.db.Dialect()
+	sql := "SELECT tr.resource_id FROM tag_resources tr " +
+		"INNER JOIN tags t ON t.id = tr.tag_id " +
+		"WHERE tr.resource = " + d.Placeholder(1) + " AND t.slug = " + d.Placeholder(2)
+
+	rows, err := s.db.Query(ctx, sql, resource, slug)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var ids []uuid.UUID
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		ids = append(ids, id)
+	}
+	return ids, rows.Err()
+}

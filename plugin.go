@@ -9,8 +9,17 @@ import (
 )
 
 type TaxonomyPlugin struct {
-	config Config
-	db     database.Database
+	config  Config
+	db      database.Database
+	service *TaxonomyService
+}
+
+type ServiceProvider interface {
+	GetService() *TaxonomyService
+}
+
+func (p *TaxonomyPlugin) GetService() *TaxonomyService {
+	return p.service
 }
 
 func NewPlugin() plugin.Plugin {
@@ -53,7 +62,15 @@ func (p *TaxonomyPlugin) Initialize(config map[string]interface{}) error {
 		p.config.MaxPaginationLimit = maxPaginationLimit
 	}
 
-	return p.config.Validate()
+	if err := p.config.Validate(); err != nil {
+		return err
+	}
+
+	if p.db != nil {
+		p.service = NewTaxonomyService(p.db, &p.config)
+	}
+
+	return nil
 }
 
 func (p *TaxonomyPlugin) Handler() fiber.Handler {
@@ -68,7 +85,7 @@ func (p *TaxonomyPlugin) SetupEndpoints(router fiber.Router) error {
 		return nil
 	}
 
-	RegisterRoutes(router, p.db, &p.config)
+	RegisterRoutesWithService(router, p.db, &p.config, p.service)
 
 	logger.Log.Info("Taxonomy plugin endpoints registered")
 	return nil

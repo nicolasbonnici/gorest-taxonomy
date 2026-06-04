@@ -7,7 +7,10 @@ import (
 )
 
 func RegisterRoutes(router fiber.Router, db database.Database, config *Config) {
-	service := NewTaxonomyService(db, config)
+	RegisterRoutesWithService(router, db, config, NewTaxonomyService(db, config))
+}
+
+func RegisterRoutesWithService(router fiber.Router, db database.Database, config *Config, service *TaxonomyService) {
 	RegisterCategoryRoutes(router, db, config, service)
 	RegisterTagRoutes(router, db, config, service)
 	registerResourceLookupRoutes(router, config, service)
