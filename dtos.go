@@ -22,7 +22,7 @@ type CategoryUpdateDTO struct {
 
 type CategoryResponseDTO struct {
 	ID          uuid.UUID  `json:"id"`
-	ParentID    *uuid.UUID `json:"parent_id,omitempty"`
+	Parent      *string    `json:"parent,omitempty"`
 	Name        string     `json:"name"`
 	Slug        string     `json:"slug"`
 	Description string     `json:"description,omitempty"`

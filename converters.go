@@ -27,7 +27,19 @@ func (c *CategoryConverter) UpdateDTOToModel(dto CategoryUpdateDTO) Category {
 }
 
 func (c *CategoryConverter) ModelToResponseDTO(model Category) CategoryResponseDTO {
-	return CategoryResponseDTO(model)
+	dto := CategoryResponseDTO{
+		ID:          model.ID,
+		Name:        model.Name,
+		Slug:        model.Slug,
+		Description: model.Description,
+		CreatedAt:   model.CreatedAt,
+		UpdatedAt:   model.UpdatedAt,
+	}
+	if model.ParentID != nil {
+		iri := "/categories/" + model.ParentID.String()
+		dto.Parent = &iri
+	}
+	return dto
 }
 
 func (c *CategoryConverter) ModelsToResponseDTOs(models []Category) []CategoryResponseDTO {
