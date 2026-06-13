@@ -1,4 +1,4 @@
-.PHONY: help test test-coverage lint lint-fix build clean install all audit
+.PHONY: help test test-coverage lint lint-fix build clean install all
 
 GOPATH ?= $(shell go env GOPATH)
 export PATH := $(GOPATH)/bin:$(PATH)
@@ -43,55 +43,6 @@ install: ## Install dependencies, dev tools, and git hooks
 	@echo ""
 	@echo "✅ Installation complete! Ready to develop."
 
-audit: ## Run all Go Report Card quality checks
-	@echo "========================================"
-	@echo "  Go Report Card Quality Checks"
-	@echo "========================================"
-	@echo ""
-	@echo "[1/7] Checking formatting (gofmt -s)..."
-	@unformatted=$$(gofmt -s -l . | grep -v '^vendor/' | grep -v 'generated/' || true); \
-	if [ -n "$$unformatted" ]; then \
-		echo "❌ The following files need formatting:"; \
-		echo "$$unformatted"; \
-		echo "   Run 'make lint-fix' to fix"; \
-		exit 1; \
-	fi
-	@echo "✓ gofmt passed"
-	@echo ""
-	@echo "[2/7] Running go vet..."
-	@go vet ./...
-	@echo "✓ go vet passed"
-	@echo ""
-	@echo "[3/7] Running staticcheck..."
-	@staticcheck ./...
-	@echo "✓ staticcheck passed"
-	@echo ""
-	@echo "[4/7] Running ineffassign..."
-	@ineffassign ./...
-	@echo "✓ ineffassign passed"
-	@echo ""
-	@echo "[5/7] Running misspell..."
-	@misspell -error $$(find . -type f -name '*.go' -o -name '*.md' -o -name '*.yaml' -o -name '*.yml' | grep -v vendor | grep -v generated | grep -v .git)
-	@echo "✓ misspell passed"
-	@echo ""
-	@echo "[6/7] Running errcheck..."
-	@errcheck -exclude .errcheck-excludes -ignoretests ./... 2>&1 || \
-	(echo "⚠️  errcheck failed" && exit 0)
-	@echo "✓ errcheck passed (or skipped)"
-	@echo ""
-	@echo "[7/7] Running gocyclo (threshold: 15)..."
-	@gocyclo_output=$$(gocyclo -over 15 . | grep -v 'vendor/' | grep -v 'generated/' | grep -v '_test.go' || true); \
-	if [ -n "$$gocyclo_output" ]; then \
-		echo "❌ Functions with cyclomatic complexity > 15:"; \
-		echo "$$gocyclo_output"; \
-		exit 1; \
-	fi
-	@echo "✓ gocyclo passed"
-	@echo ""
-	@echo "========================================"
-	@echo "✅ All quality checks passed!"
-	@echo "========================================"
-
 test: ## Run tests with coverage
 	@echo "Running tests..."
 	@go test -v -race -coverprofile=coverage.out -covermode=atomic ./...
@@ -109,7 +60,7 @@ test-coverage: ## Run tests with HTML coverage report
 	@echo "✓ Coverage report generated: coverage.html"
 	@go tool cover -func=coverage.out
 
-lint: ## Run linter
+lint: ## Run all quality checks (gofmt, vet, staticcheck, misspell, gocyclo, errcheck)
 	@echo "Running golangci-lint..."
 	@golangci-lint run ./...
 

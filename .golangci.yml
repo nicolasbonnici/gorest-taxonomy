@@ -5,17 +5,21 @@ run:
 linters:
   enable:
     - errcheck
+    - gofmt
+    - gocyclo
     - gosimple
     - govet
     - ineffassign
+    - misspell
     - staticcheck
     - typecheck
     - unused
-  disable:
-    - gocyclo
-    - misspell
 
 linters-settings:
+  gofmt:
+    simplify: true
+  gocyclo:
+    min-complexity: 45
   errcheck:
     check-blank: false
     check-type-assertions: false

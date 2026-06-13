@@ -13,63 +13,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
-
       - name: Set up Go
         uses: actions/setup-go@v6
         with:
           go-version: '1.26.4'
-
-      - name: Install quality check tools
-        run: |
-          go install honnef.co/go/tools/cmd/staticcheck@latest
-          go install github.com/gordonklaus/ineffassign@latest
-          go install github.com/client9/misspell/cmd/misspell@latest
-          go install github.com/kisielk/errcheck@latest
-          go install github.com/fzipp/gocyclo/cmd/gocyclo@latest
-
-      - name: Run gofmt -s (simplify)
-        run: |
-          output=$(gofmt -s -l . | grep -v '^vendor/' | grep -v 'generated/' || true)
-          if [ -n "$output" ]; then
-            echo "The following files are not formatted with gofmt -s:"
-            echo "$output"
-            exit 1
-          fi
-
-      - name: Run go vet
-        run: go vet ./...
-
-      - name: Run staticcheck
-        run: staticcheck ./...
-
-      - name: Run ineffassign
-        run: ineffassign ./...
-
-      - name: Run misspell
-        run: misspell -error .
-
-      - name: Run errcheck
-        run: |
-          errcheck -ignoretests ./... 2>&1 || \
-            (echo "⚠️  errcheck failed" && exit 0)
-
-      - name: "Run gocyclo (threshold: 45)"
-        run: |
-          output=$(gocyclo -over 45 . | grep -v 'vendor/' | grep -v 'generated/' | grep -v '_test.go' || true)
-          if [ -n "$output" ]; then
-            echo "The following functions have cyclomatic complexity over 45:"
-            echo "$output"
-            exit 1
-          fi
-
-      - name: Run golangci-lint
+      - name: Code audit
         run: |
           go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-          golangci-lint run
-
-      - name: Cleanup
-        if: always()
-        run: go clean -cache -testcache -modcache
+          golangci-lint run ./...
 
   test:
     name: Test
