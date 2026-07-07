@@ -94,7 +94,11 @@ func RegisterTagRoutes(router fiber.Router, db database.Database, config *Config
 }
 
 func (h *categoryHandler) Create(c fiber.Ctx) error {
-	return h.processor.Create(c)
+	err := h.processor.Create(c)
+	if err == nil {
+		h.service.InvalidateCategoryCache()
+	}
+	return err
 }
 
 func (h *categoryHandler) GetByID(c fiber.Ctx) error {
@@ -106,11 +110,19 @@ func (h *categoryHandler) GetAll(c fiber.Ctx) error {
 }
 
 func (h *categoryHandler) Update(c fiber.Ctx) error {
-	return h.processor.Update(c)
+	err := h.processor.Update(c)
+	if err == nil {
+		h.service.InvalidateCategoryCache()
+	}
+	return err
 }
 
 func (h *categoryHandler) Delete(c fiber.Ctx) error {
-	return h.processor.Delete(c)
+	err := h.processor.Delete(c)
+	if err == nil {
+		h.service.InvalidateCategoryCache()
+	}
+	return err
 }
 
 func (h *categoryHandler) GetTree(c fiber.Ctx) error {

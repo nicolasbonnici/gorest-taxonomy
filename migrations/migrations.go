@@ -13,6 +13,7 @@ func GetMigrations() migrations.MigrationSource {
 	builder.Add("20260516000002000", "create_category_resources_table", upCategoryResources, downCategoryResources)
 	builder.Add("20260516000003000", "create_tags_table", upTags, downTags)
 	builder.Add("20260516000004000", "create_tag_resources_table", upTagResources, downTagResources)
+	builder.Add("20260705000005000", "add_taxonomy_covering_indexes", upTaxonomyCoveringIndexes, downTaxonomyCoveringIndexes)
 	return builder.Build()
 }
 
