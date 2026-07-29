@@ -1,7 +1,8 @@
 # gorest-taxonomy
 
 [![CI](https://github.com/nicolasbonnici/gorest-taxonomy/actions/workflows/ci.yml/badge.svg)](https://github.com/nicolasbonnici/gorest-taxonomy/actions/workflows/ci.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/nicolasbonnici/gorest-taxonomy)](https://goreportcard.com/report/github.com/nicolasbonnici/gorest-taxonomy)
+[![Go Reference](https://pkg.go.dev/badge/github.com/nicolasbonnici/gorest-taxonomy.svg)](https://pkg.go.dev/github.com/nicolasbonnici/gorest-taxonomy)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/nicolasbonnici/gorest-taxonomy)](https://github.com/nicolasbonnici/gorest-taxonomy/blob/HEAD/go.mod)
 [![Go Version](https://img.shields.io/badge/go-1.26-blue.svg)](https://golang.org/dl/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
