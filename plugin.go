@@ -3,6 +3,9 @@ package taxonomy
 import (
 	"github.com/gofiber/fiber/v3"
 	"github.com/nicolasbonnici/gorest-taxonomy/migrations"
+	"github.com/nicolasbonnici/gorest/auth/jwt"
+	authmiddleware "github.com/nicolasbonnici/gorest/auth/middleware"
+	gorestconfig "github.com/nicolasbonnici/gorest/config"
 	"github.com/nicolasbonnici/gorest/database"
 	"github.com/nicolasbonnici/gorest/logger"
 	"github.com/nicolasbonnici/gorest/plugin"
@@ -36,6 +39,11 @@ func (p *TaxonomyPlugin) Initialize(config map[string]interface{}) error {
 	if db, ok := config["database"].(database.Database); ok {
 		p.db = db
 		p.config.Database = db
+	}
+
+	if appCfg, ok := config["config"].(*gorestconfig.Config); ok && appCfg.Auth.Enabled && p.db != nil {
+		jwtSvc := jwt.NewService(appCfg.Auth.JWTSecret, appCfg.Auth.JWTTTL)
+		p.config.AuthMiddleware = authmiddleware.OptionalAuthMiddleware(jwtSvc, p.db)
 	}
 
 	if allowedTypes, ok := config["allowed_types"].([]interface{}); ok {

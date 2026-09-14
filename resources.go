@@ -6,6 +6,7 @@ import (
 	"github.com/nicolasbonnici/gorest/crud"
 	"github.com/nicolasbonnici/gorest/database"
 	"github.com/nicolasbonnici/gorest/processor"
+	"github.com/nicolasbonnici/gorest/rbac"
 )
 
 type categoryHandler struct {
@@ -18,6 +19,42 @@ type tagHandler struct {
 	processor processor.Processor[Tag, TagCreateDTO, TagUpdateDTO, TagResponseDTO]
 	service   *TaxonomyService
 	config    *Config
+}
+
+// guards returns the middleware chain every mutating taxonomy route must carry:
+// resolve the identity, load its roles, demand one, then demand a write role.
+func guards(db database.Database, config *Config) []fiber.Handler {
+	chain := []fiber.Handler{}
+	if config.AuthMiddleware != nil {
+		chain = append(chain, config.AuthMiddleware)
+	}
+	return append(chain,
+		rbac.RoleLoader(db, config.RoleHierarchy),
+		rbac.RequireAuthenticated(),
+		rbac.RequireAnyRole(config.RoleHierarchy, config.SuperuserRole, config.WriteRoles...),
+	)
+}
+
+// readChain mounts only the identity resolver, so a public read still knows who
+// is asking when a token happens to be present.
+func readChain(config *Config) []fiber.Handler {
+	if config.AuthMiddleware != nil {
+		return []fiber.Handler{config.AuthMiddleware}
+	}
+	return nil
+}
+
+// mount registers handler at the end of chain. Fiber v3 takes the first element
+// positionally and the rest variadically, and runs them in the order given, so
+// the guards have to be spliced in ahead of the handler here rather than by the
+// caller.
+func mount(register func(string, any, ...any) fiber.Router, path string, chain []fiber.Handler, h fiber.Handler) {
+	all := make([]any, 0, len(chain)+1)
+	for _, m := range chain {
+		all = append(all, m)
+	}
+	all = append(all, h)
+	register(path, all[0], all[1:]...)
 }
 
 func RegisterCategoryRoutes(router fiber.Router, db database.Database, config *Config, service *TaxonomyService) {
@@ -48,14 +85,17 @@ func RegisterCategoryRoutes(router fiber.Router, db database.Database, config *C
 
 	h := &categoryHandler{processor: proc, service: service, config: config}
 
-	router.Post("/categories", h.Create)
-	router.Get("/categories/tree", h.GetTree)
-	router.Get("/categories/:id", h.GetByID)
-	router.Get("/categories", h.GetAll)
-	router.Put("/categories/:id", h.Update)
-	router.Delete("/categories/:id", h.Delete)
-	router.Post("/categories/:id/resources", h.AttachResource)
-	router.Delete("/categories/:id/resources/:resource/:resource_id", h.DetachResource)
+	write := guards(db, config)
+	read := readChain(config)
+
+	mount(router.Get, "/categories/tree", read, h.GetTree)
+	mount(router.Get, "/categories/:id", read, h.GetByID)
+	mount(router.Get, "/categories", read, h.GetAll)
+	mount(router.Post, "/categories", write, h.Create)
+	mount(router.Put, "/categories/:id", write, h.Update)
+	mount(router.Delete, "/categories/:id", write, h.Delete)
+	mount(router.Post, "/categories/:id/resources", write, h.AttachResource)
+	mount(router.Delete, "/categories/:id/resources/:resource/:resource_id", write, h.DetachResource)
 }
 
 func RegisterTagRoutes(router fiber.Router, db database.Database, config *Config, service *TaxonomyService) {
@@ -84,13 +124,16 @@ func RegisterTagRoutes(router fiber.Router, db database.Database, config *Config
 
 	h := &tagHandler{processor: proc, service: service, config: config}
 
-	router.Post("/tags", h.Create)
-	router.Get("/tags/:id", h.GetByID)
-	router.Get("/tags", h.GetAll)
-	router.Put("/tags/:id", h.Update)
-	router.Delete("/tags/:id", h.Delete)
-	router.Post("/tags/:id/resources", h.AttachResource)
-	router.Delete("/tags/:id/resources/:resource/:resource_id", h.DetachResource)
+	write := guards(db, config)
+	read := readChain(config)
+
+	mount(router.Get, "/tags/:id", read, h.GetByID)
+	mount(router.Get, "/tags", read, h.GetAll)
+	mount(router.Post, "/tags", write, h.Create)
+	mount(router.Put, "/tags/:id", write, h.Update)
+	mount(router.Delete, "/tags/:id", write, h.Delete)
+	mount(router.Post, "/tags/:id/resources", write, h.AttachResource)
+	mount(router.Delete, "/tags/:id/resources/:resource/:resource_id", write, h.DetachResource)
 }
 
 func (h *categoryHandler) Create(c fiber.Ctx) error {

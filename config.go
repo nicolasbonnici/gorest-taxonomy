@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/gofiber/fiber/v3"
 	"github.com/nicolasbonnici/gorest/database"
 )
 
@@ -13,6 +14,18 @@ type Config struct {
 	MaxDepth           int      `json:"max_depth" yaml:"max_depth"`
 	PaginationLimit    int      `json:"pagination_limit" yaml:"pagination_limit"`
 	MaxPaginationLimit int      `json:"max_pagination_limit" yaml:"max_pagination_limit"`
+
+	// Reads are public; every mutation requires one of WriteRoles or the
+	// superuser role. Before v0.7 the mutating routes carried no guard at all,
+	// so anyone could delete a category anonymously.
+	WriteRoles    []string            `json:"write_roles" yaml:"write_roles"`
+	SuperuserRole string              `json:"superuser_role" yaml:"superuser_role"`
+	RoleHierarchy map[string][]string `json:"role_hierarchy" yaml:"role_hierarchy"`
+
+	// AuthMiddleware is supplied by the plugin loader when the host enables
+	// auth. Without it no request can present an identity, so the guards below
+	// deny every mutation rather than waving them through.
+	AuthMiddleware fiber.Handler `json:"-" yaml:"-"`
 }
 
 func DefaultConfig() Config {
@@ -21,6 +34,12 @@ func DefaultConfig() Config {
 		MaxDepth:           5,
 		PaginationLimit:    25,
 		MaxPaginationLimit: 100,
+		WriteRoles:         []string{"writer", "moderator"},
+		SuperuserRole:      "admin",
+		RoleHierarchy: map[string][]string{
+			"moderator": {"writer"},
+			"writer":    {"reader"},
+		},
 	}
 }
 
